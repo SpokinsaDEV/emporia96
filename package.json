@@ -18,7 +18,7 @@
         "format": "prettier --write \"**/*.{js,mjs,ts,mts,d.ts,html}\" --cache",
         "test": "ng test",
         "version": "standard-version",
-        "release": "npm run version && git push --follow-tags origin main"
+        "release": "npm run version && git push --follow-tags origin master"
     },
     "private": true,
     "dependencies": {
