@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { IdleService } from './app/pages/service/idle.service';
 
 @Component({
     selector: 'app-root',
@@ -7,4 +8,6 @@ import { RouterModule } from '@angular/router';
     imports: [RouterModule],
     template: `<router-outlet></router-outlet>`
 })
-export class AppComponent {}
+export class AppComponent {
+    constructor(){}
+}
