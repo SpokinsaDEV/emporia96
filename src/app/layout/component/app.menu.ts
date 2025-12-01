@@ -22,14 +22,14 @@ export class AppMenu {
         this.model = [
             {
                 label: 'Home',
-                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
+                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/'] }]
             },
             {
                 label: 'Parametrizacion',
                 items: [
                     {
                         label: 'Inventario',
-                        icon: 'pi pi-fw  pi-folder',
+                        icon: 'pi pi-fw  pi-box',
                         items: [
                             {
                                 label: 'Bodegas',
@@ -98,6 +98,55 @@ export class AppMenu {
                                 routerLink: ['/pages/parametrizacion/transportes']
                             }
                         ]
+                    },
+                    {
+                        label: 'Configuración ubicación',
+                        icon: 'pi pi-map-marker',
+                        items: [
+                            {
+                                label: 'País',
+                                icon: 'pi pi-globe',
+                                routerLink: ['/pages/parametrizacion/pais']
+                            },
+                            {
+                                label: 'Provincia',
+                                icon: 'pi pi-map',
+                                routerLink: ['/pages/parametrizacion/provincia']
+                            },
+                            {
+                                label: 'Ciudad',
+                                icon: 'pi pi-home',
+                                routerLink: ['/pages/parametrizacion/ciudad']
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                label: 'Gestión Comercial',
+                items: [
+                    {
+                        label: 'Pedidos',
+                        icon: 'pi pi-shopping-cart',
+                        routerLink: ['/pages/pedidos']
+                    },
+                    {
+                        label: 'Facturas',
+                        icon: 'pi pi-file',
+                        routerLink: ['']
+                    },
+                    {
+                        label: 'Cobranzas',
+                        icon: 'pi pi-wallet',
+                        routerLink: ['']
+                    }
+                ]
+            },
+            {
+                label: 'Importación',
+                items: [
+                    {
+                        label: ''
                     }
                 ]
             },

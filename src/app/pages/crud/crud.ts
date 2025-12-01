@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -15,6 +15,8 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
+import { FileUpload } from 'primeng/fileupload';
+import { GalleriaModule } from 'primeng/galleria';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -49,7 +51,9 @@ interface ExportColumn {
         TagModule,
         InputIconModule,
         IconFieldModule,
-        ConfirmDialogModule
+        ConfirmDialogModule,
+        FileUpload,
+        GalleriaModule,
     ],
     styles: [`
         .uppercase {
@@ -58,6 +62,7 @@ interface ExportColumn {
         `,
     ],
     template: `
+        <p-toast />
         <p-toolbar styleClass="mb-6">
             <ng-template #start>
                 <p-button label="Nuevo" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
@@ -133,8 +138,8 @@ interface ExportColumn {
                             class="uppercase"
                             fluid />
                             <p-select *ngSwitchCase="'select'"
-                            [options]="selectData"
-                            [placeholder]="placeHolderDynamic"
+                            [options]="selectData[getDropDownKey(item.key)]"
+                            [placeholder]="item.placeHolder"
                             [optionLabel]="item.optionLabelKey"
                             [optionValue]="item.optionValueKey"
                             [(ngModel)]="itemData[item.key]"
@@ -142,9 +147,53 @@ interface ExportColumn {
                             [required]="item.required"
                             class="uppercase"
                             fluid />
-                            <img *ngSwitchCase="'image'"
-                            [src]="'https://primefaces.org/cdn/primeng/images/demo/product/bamboo-watch.jpg'"
-                            class="block m-auto pb-4" />
+                            <p-inputnumber *ngSwitchCase="'number'"
+                            [id]="item.key"
+                            [(ngModel)]="itemData[item.key]"
+                            [mode]="item.key === 'stockTotal' ? 'decimal' : 'currency'"
+                            [currency]="item.key === 'stockTotal' ? undefined : 'USD'"
+                            [locale]="item.key === 'stockTotal' ? undefined : 'en-US'"
+                            fluid />
+                            <ng-container *ngSwitchCase="'image'">
+                                <ng-container *ngIf="isNew; else editMode">
+                                    <p-fileupload
+                                        name="files[]"
+                                        [multiple]="true"
+                                        accept="image/*"
+                                        maxFileSize="5000000"
+                                        mode="advanced"
+                                        customUpload="true"
+                                        (uploadHandler)="onUpload($event)"
+                                        auto="false"
+                                        >
+                                    </p-fileupload>
+                                    <ng-template #content>
+                                        <ul *ngIf="uploadedFiles.length">
+                                            <li *ngFor="let file of uploadedFiles">{{ file.name }} - {{ file.size }} bytes</li>
+                                        </ul>
+                                    </ng-template>
+                                </ng-container>
+                                <ng-template #editMode>
+                                    <ng-container *ngIf="images && images.length; else noImages">
+                                        <p-galleria
+                                        [value]="images"
+                                        [showIndicators]="true"
+                                        [showThumbnails]="false"
+                                        [responsiveOptions]="responsiveOptions"
+                                        [containerStyle]="{ 'max-width': '640px' }"
+                                        [numVisible]="5">
+                                            <ng-template #item let-item>
+                                                <img [src]="item.imageSrc" [alt]="item.alt" style="width: 100%; display: block;">
+                                            </ng-template>
+                                        </p-galleria>
+                                    </ng-container>
+                                        <ng-template #noImages>
+                                            <div class="text-center p-4 border border-dashed">
+                                                <p class="text-muted">Sin imágenes disponibles</p>
+                                            </div>
+                                        </ng-template>
+                                </ng-template>
+                            </ng-container>
                         </ng-container>
                     </div>
                 </div>
@@ -173,11 +222,23 @@ export class Crud implements OnInit {
     config: any;
     columns: any[] = [];
     data: any[] = [];
-    selectData: any[] = [];
+    selectData: { [key: string]: any[] } = {};
     itemData!: any;
     title: string = '';
     fields: any[] = [];
-    placeHolderDynamic: string = '';
+    isNew: boolean = true;
+    images!: any[];
+    uploadedFiles: any[] = [];
+    responsiveOptions: any[] = [
+        {
+            breakpoint: '1300px',
+            numVisible: 4
+        },
+        {
+            breakpoint: '575px',
+            numVisible: 1
+        }
+    ];
 
     constructor(
         private parametrizacionService: ParametrizacionService,
@@ -204,27 +265,61 @@ export class Crud implements OnInit {
                 console.error('Configuración no encontrada para la sección: ', this.section);
             }
 
-            this.placeHolderDynamic = '';
-
             if (this.section === 'lineas') {
-            this.placeHolderDynamic = 'Seleccione una categoría';
             this.parametrizacionService
             .getAll("/Categoria/getallCategoria")
-            .subscribe((res) => this.selectData = res);
+            .subscribe((res) => this.selectData['categoria'] = res);
             }
             else if (this.section === 'clientes') {
-                this.placeHolderDynamic = 'Seleccione un vendedor';
                 this.parametrizacionService
                 .getAll("/Vendedor/getallVendedores")
-                .subscribe((res) => this.selectData = res);
+                .subscribe((res) => this.selectData['vendedor'] = res);
+            }
+            else if (this.section === "provincia") {
+                this.parametrizacionService
+                .getAll("/Pais/getallPais")
+                .subscribe((res) => this.selectData['pais'] = res);
+            }
+            else if (this.section === 'ciudad') {
+                this.parametrizacionService
+                .getAll("/Provincia/getallProvincia")
+                .subscribe((res) => this.selectData['provincia'] = res);
             }
             else if (this.section === 'productos') {
-                this.placeHolderDynamic = 'Seleccione una marca'; //seleccione una categoria seleccione una línea
-                this.parametrizacionService
-                .getAll("/Marca/getallMarca")
-                .subscribe((res) => this.selectData = res);
+                this.loadProductDropdown();
             }
         });
+    }
+
+    loadProductDropdown(){
+        const endpoints = [
+            { key: 'marca', endpoint: '/Marca/getallMarca' },
+            { key: 'familia', endpoint: '/Familia/getallFamilia' },
+            { key: 'unidad', endpoint: '/Unidad/getallUnidad' },
+            { key: 'categoria', endpoint: '/Categoria/getallCategoria' },
+            { key: 'ubicacion', endpoint: '/Bodega/getallBodega' },
+        ];
+
+        endpoints.forEach(({ key, endpoint }) => {
+            this.parametrizacionService
+            .getAll(endpoint)
+            .subscribe((data) => this.selectData[key] = data)
+        })
+    }
+
+    getDropDownKey(key: string): string{
+        const map: {[key: string]: string} = {
+            marcaId: 'marca',
+            familiaId: 'familia',
+            unidadId: 'unidad',
+            categoriaId: 'categoria',
+            vendedorId: 'vendedor',
+            ubicacion: 'ubicacion',
+            paisId: 'pais',
+            provinciaId: 'provincia',
+        };
+
+        return map[key] || '';
     }
 
     loadData() {
@@ -240,13 +335,15 @@ export class Crud implements OnInit {
     }
     // Abre el modal = dialog (PrimeNG)
     openNew() {
+        this.isNew = true;
         this.itemData = {}; // instancia del objeto.
         this.submitted = false; // para validación en el modal.
         this.itemDialog = true; // abre el modal
     }
 
     editItem(item: any) {
-        console.log(item)
+        this.parametrizacionService.getImagenes(item.id).subscribe((response) => this.images = response);
+        this.isNew = false;
         this.itemData = { ...item};
         this.itemDialog = true;
     }
@@ -287,6 +384,7 @@ export class Crud implements OnInit {
     }
 
     deleteItem(item: any) {
+        console.log(item)
         this.confirmationService.confirm({
             message: 'Estás seguro(a) de eliminar: ' + item.descripcion + '?',
             header: 'Eliminar',
@@ -345,10 +443,21 @@ export class Crud implements OnInit {
     }
 
     saveItem() {
+        // Declarar formData, pero solo se usa si hay archivos o la sección es 'productos'.
+        const formData = new FormData();
         this.submitted = true;
 
+        // 1. Lógica para anexar datos y archivos a FormData (SOLO si es 'productos')
+        if (this.section === 'productos') {
+            // Adjunta el objeto de datos como una cadena JSON y los archivos.
+            formData.append('product', JSON.stringify(this.itemData));
+            this.uploadedFiles.forEach((file: File) => formData.append('files', file));
+        }
+
+        // 2. Lógica de Actualización (itemData.id existe)
         if (this.itemData.id) {
             // Actualizar el registro existente
+            console.log(this.config.updatepoint, this.itemData.id)
             this.parametrizacionService
             .update(this.config.updatepoint, this.itemData, this.itemData.id)
             .subscribe(() => {
@@ -370,11 +479,17 @@ export class Crud implements OnInit {
                     life: 3000,
                 });
             });
+        // 3. Lógica de Creación (itemData.id NO existe)
         } else {
-            console.log(this.itemData);
+            let datos: any;
+            if (this.section === 'productos') {
+                datos = formData;
+            } else {
+                datos = this.itemData;
+            } 
             // Crear un nuevo registro
             this.parametrizacionService
-            .create(this.config.createpoint, this.itemData)
+            .create(this.config.createpoint, datos)
             .subscribe(() => {
                 this.messageService.add({
                     severity: 'success',
@@ -395,5 +510,17 @@ export class Crud implements OnInit {
                 });
             });
         }
+    }
+
+    onUpload(event: any){
+        for (const file of event.files) {
+            this.uploadedFiles.push(file);
+        }
+
+        this.messageService.add({
+            severity: 'info',
+            summary: 'File upload',
+            detail: ''
+        });
     }
 }

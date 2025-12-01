@@ -33,4 +33,11 @@ export class ParametrizacionService {
             params
         });
     }
+
+    getImagenes(id: number): Observable<any> {
+        let params = new HttpParams().set('id', id);
+        return this.http.get<any>(`${this.url}/Producto/getImagenProduct`, {
+            params
+        });
+    }
 }

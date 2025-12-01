@@ -17,6 +17,7 @@ export const PARAMETRIZATION_CONFIG: { [key: string]: {
         optionsEndPoint?: string;
         optionLabelKey?: string;
         optionValueKey?: string;
+        placeHolder?: string;
     }[];
 } } = {
     bodegas: {
@@ -74,7 +75,7 @@ export const PARAMETRIZATION_CONFIG: { [key: string]: {
             { label: 'Código', key: 'codigo', type: 'text', required: false },
             { label: 'Descripción', key: 'descripcion', type: 'text', required: false },
             { label: 'Estado', key: 'estado', type: 'text', required: false },
-            { label: 'Categoría', key: 'categoriaId', type: 'select', optionLabelKey: 'descripcion', optionValueKey: 'id', required: false },
+            { label: 'Categoría', key: 'categoriaId', type: 'select', placeHolder: 'Seleccione una categoría', optionLabelKey: 'descripcion', optionValueKey: 'id', required: false },
         ],
     },
     marcas: {
@@ -110,15 +111,15 @@ export const PARAMETRIZATION_CONFIG: { [key: string]: {
         ],
         dialog: [
             { label: 'Imagen', key: '', type: 'image', required: false },
-            { label: 'Código', key: '', type: 'text', required: false },
-            { label: 'Descripción', key: '', type: 'text', required: false },
-            { label: 'Precio', key: '', type: '', required: false },
-            { label: 'Stock', key: '', type: '', required: false },
-            { label: 'Ubicación', key: '', type: 'text', required: false },
-            { label: 'Unidad', key: '', type: 'select', required: false },
-            { label: 'Línea', key: '', type: 'select', required: false },
-            { label: 'Categoría', key: '', type: 'select', required: false },
-            { label: 'Marca', key: '', type: 'select', required: false },
+            { label: 'Código', key: 'codigo', type: 'text', required: false },
+            { label: 'Descripción', key: 'descripcion', type: 'text', required: false },
+            { label: 'Precio', key: 'precio', type: 'number', required: false },
+            { label: 'Stock', key: 'stockTotal', type: 'number', required: false },
+            { label: 'Ubicación', key: 'ubicacion', type: 'select', placeHolder: 'Seleccione una bodega', optionLabelKey: 'nombre', optionValueKey: 'nombre', required: false },
+            { label: 'Unidad', key: 'unidadId', type: 'select', placeHolder: 'Seleccione una unidad', optionLabelKey: 'descripcion', optionValueKey: 'id', required: false },
+            { label: 'Línea', key: 'familiaId', type: 'select', placeHolder: 'Seleccione una línea', optionLabelKey: 'descripcion', optionValueKey: 'id', required: false },
+            { label: 'Categoría', key: 'categoriaId', type: 'select', placeHolder: 'Seleccione una categoría', optionLabelKey: 'descripcion', optionValueKey: 'id', required: false },
+            { label: 'Marca', key: 'marcaId', type: 'select', placeHolder: 'Seleccione una marca', optionLabelKey: 'descripcion', optionValueKey: 'id', required: false },
         ],
     },
     unidades: {
@@ -179,7 +180,7 @@ export const PARAMETRIZATION_CONFIG: { [key: string]: {
             { label: 'RUC/C.I.', key: 'identificacion', type: 'text', required: false },
             { label: 'Dirección', key: 'direccion', type: 'text', required: false },
             { label: 'Correo', key: 'correo', type: 'text', required: false },
-            { label: 'Vendedor', key: 'vendedorId', type: 'select', optionLabelKey: 'nombres', optionValueKey: 'id', required: false },
+            { label: 'Vendedor', key: 'vendedorId', type: 'select', placeHolder: 'Seleccione un vendedor', optionLabelKey: 'nombres', optionValueKey: 'id', required: false },
         ],
     },
     recaudadores: {
@@ -250,4 +251,57 @@ export const PARAMETRIZATION_CONFIG: { [key: string]: {
             { label: 'Dirección', key: 'direccion', type: 'text', required: false },
         ],
     },
+    pais: {
+        title: 'País',
+        endpoint: '/Pais/getallPais',
+        createpoint: '/Pais/createPais',
+        readpoint: '/Pais/getPais',
+        updatepoint: '/Pais/updatePais',
+        deletepoint: '/Pais/deletePais',
+        columns: [
+            { field: 'codigo', header: 'Código' },
+            { field: 'nombre', header: 'Nombre' },
+        ],
+        dialog: [
+            { label: 'Código', key: 'codigo', type: 'text', required: false },
+            { label: 'Nombre', key: 'nombre', type: 'text', required: false },
+        ]
+    },
+    provincia: {
+        title: 'Provincia',
+        endpoint: '/Provincia/getallProvincia',
+        createpoint: '/Provincia/createProvincia',
+        readpoint: '/Provincia/getProvincia',
+        updatepoint: '/Provincia/updateProvincia',
+        deletepoint: '/Provincia/deleteProvincia',
+        columns: [
+            { field: 'codigo', header: 'Código' },
+            { field: 'nombre', header: 'Nombre' },
+            { field: 'paisId', header: 'Pais' },
+        ],
+        dialog: [
+            { label: 'Código', key: 'codigo', type: 'text',required: false },
+            { label: 'Nombre', key: 'nombre', type: 'text', required: false },
+            { label: 'País', key: 'paisId', type: 'select', placeHolder: 'Seleccione un país', optionLabelKey: 'nombre', optionValueKey: 'id', required: false },
+        ]
+    },
+    ciudad: {
+        title: 'Ciudad',
+        endpoint: '/Ciudad/getallCiudad',
+        createpoint: '/Ciudad/createCiudad',
+        readpoint: '/Ciudad/getCiudad',
+        updatepoint: '/Ciudad/updateCiudad',
+        deletepoint: '/Ciudad/deleteCiudad',
+        columns: [
+            { field: 'codigo', header: 'Código' },
+            { field: 'nombre', header: 'Nombre' },
+            { field: 'provinciaId', header: 'Provincia' },
+
+        ],
+        dialog: [
+            { label: 'Código', key: 'codigo', type: 'text', required: false },
+            { label: 'Nombre', key: 'nombre', type: 'text', required: false },
+            { label: 'Provincia', key: 'provinciaId', type: 'select', placeHolder: 'Seleccione una provincia', optionLabelKey: 'nombre', optionValueKey: 'id', required: false },
+        ]
+    }
 }
