@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '@/app/layout/service/layout.service';
+import { AuthService } from '@/app/core/services/auth.service';
 
 @Component({
     selector: 'app-topbar',
@@ -36,6 +37,8 @@ import { LayoutService } from '@/app/layout/service/layout.service';
                 <span>SAKAI</span>
             </a>
         </div>
+
+        <h1>Bienvenido {{ userName }} - {{ tenant }}</h1>
 
         <div class="layout-topbar-actions">
             <div class="layout-config-menu">
@@ -85,6 +88,18 @@ export class AppTopbar {
     items!: MenuItem[];
 
     layoutService = inject(LayoutService);
+
+    userName: string = '';
+    tenant: string = '';
+
+    constructor(private authService: AuthService){
+        this.authService.userName$.subscribe(name => {
+            this.userName = name;
+        });
+        this.authService.tenant$.subscribe(tenant => {
+            this.tenant = tenant;
+        });
+    }
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({
