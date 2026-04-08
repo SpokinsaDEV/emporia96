@@ -79,6 +79,11 @@ import { AuthService } from '@/app/core/services/auth.service';
                         <i class="pi pi-user"></i>
                         <span>Profile</span>
                     </button>
+                    <button type="button" class="layout-topbar-action">
+                        <i class="pi pi-user"></i>
+                        <span>Profile</span>
+                    </button>
+
                 </div>
             </div>
         </div>
